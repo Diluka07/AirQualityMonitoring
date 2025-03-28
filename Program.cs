@@ -9,6 +9,13 @@ using AirQualityMonitoring.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Enable CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins", policy =>
+        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+});
+
 // Add services to the container.
 // Configure DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
