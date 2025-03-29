@@ -1,4 +1,5 @@
 ﻿using AirQualityMonitoring.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -10,6 +11,7 @@ namespace AirQualityMonitoring.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class SensorsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -25,7 +27,7 @@ namespace AirQualityMonitoring.Controllers
         {
             if (sensor == null) return BadRequest("Invalid data.");
 
-            sensor.SensorId = Guid.NewGuid().ToString(); // Generate Unique ID
+            //sensor.SensorId = Guid.NewGuid().ToString(); // Generate Unique ID
             _context.Sensors.Add(sensor);
             await _context.SaveChangesAsync();
             return Ok(sensor);

@@ -1,4 +1,5 @@
 ﻿using AirQualityMonitoring.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -10,6 +11,7 @@ namespace AirQualityMonitoring.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class AQIReadingsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
