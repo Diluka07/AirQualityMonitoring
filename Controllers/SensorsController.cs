@@ -25,9 +25,12 @@ namespace AirQualityMonitoring.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> RegisterSensor([FromBody] Sensor sensor)
         {
-            if (sensor == null) return BadRequest("Invalid data.");
+            var existingSensor = await _context.Sensors.FirstOrDefaultAsync(s => s.SensorId == sensor.SensorId);
+            if (existingSensor != null)
+            {
+                return Conflict("Sensor with the same ID already exists.");
+            }
 
-            //sensor.SensorId = Guid.NewGuid().ToString(); // Generate Unique ID
             _context.Sensors.Add(sensor);
             await _context.SaveChangesAsync();
             return Ok(sensor);
@@ -68,5 +71,43 @@ namespace AirQualityMonitoring.Controllers
             await _context.SaveChangesAsync();
             return Ok(new { message = "Sensor deactivated" });
         }
+
+        // Activate Sensor
+        [HttpPut("activate/{id}")]
+        public async Task<IActionResult> AactivateSensor(int id)
+        {
+            var sensor = await _context.Sensors.FindAsync(id);
+            if (sensor == null) return NotFound("Sensor not found.");
+
+            sensor.IsActive = true;
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Sensor activated" });
+        }
+
+        // Delete sensor
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteSensor(int id)
+        {
+            var sensor = await _context.Sensors
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (sensor == null)
+            {
+                return NotFound(new { message = "Sensor not found" });
+            }
+
+            // Delete related AQI readings first
+            var aqiReadings = _context.AQIReadings.Where(a => a.SensorId == id);
+            _context.AQIReadings.RemoveRange(aqiReadings);
+            await _context.SaveChangesAsync(); // Save changes after deleting AQI readings
+
+            // Now delete the sensor
+            _context.Sensors.Remove(sensor);
+            await _context.SaveChangesAsync(); // Save changes after deleting the sensor
+
+            return Ok(new { message = "Sensor and its related AQI readings deleted successfully" });
+        }
+
+
     }
 }
